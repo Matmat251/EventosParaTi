@@ -1,0 +1,80 @@
+# =============================================
+# .gitignore - EventosParaTi
+# =============================================
+
+# -----------------------------------------------
+# XAMPP - Archivos temporales y de configuracion
+# -----------------------------------------------
+/xampp/
+xampp/
+*.log
+/logs/
+/tmp/
+/temp/
+php_error.log
+error_log
+
+# -----------------------------------------------
+# IDE - Visual Studio Code
+# -----------------------------------------------
+.vscode/
+*.code-workspace
+
+# -----------------------------------------------
+# IDE - PhpStorm / IntelliJ
+# -----------------------------------------------
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# -----------------------------------------------
+# IDE - NetBeans
+# -----------------------------------------------
+nbproject/
+build/
+dist/
+nbbuild/
+nbdist/
+
+# -----------------------------------------------
+# Sistema Operativo
+# -----------------------------------------------
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# -----------------------------------------------
+# Dependencias y paquetes
+# -----------------------------------------------
+/vendor/
+node_modules/
+package-lock.json
+
+# -----------------------------------------------
+# Variables de entorno (datos sensibles)
+# -----------------------------------------------
+.env
+.env.local
+.env.*.local
+config.local.php
+
+# -----------------------------------------------
+# Archivos compilados / build
+# -----------------------------------------------
+*.class
+*.out
+*.jar
+*.war
+*.ear
+/target/
