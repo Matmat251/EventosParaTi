@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>EventosParaTi - Ticket HTML Form</title>
+
+    <!-- CSS FILES -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;400;700&display=swap" rel="stylesheet">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+
+    <link href="css/templatemo-festava-live.css" rel="stylesheet">
+    <!--
+
+https://templatemo.com/tm-583-festava-live
+
+-->
+
+</head>
+
+<body>
+
+    <main>
+
+        <header class="site-header">
+            <div class="container">
+                <div class="row">
+
+                    <div class="col-lg-12 col-12 d-flex flex-wrap">
+                        <p class="d-flex me-4 mb-0">
+                            <i class="bi-person custom-icon me-2"></i>
+                            <strong class="text-dark">Welcome to EventosParaTi</strong>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </header>
+
+
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">EventosParaTi</a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav align-items-lg-center ms-auto me-lg-5">
+                        <li class="nav-item">
+                            <a class="nav-link click-scroll" href="index.html#section_1">Inicio</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link click-scroll" href="index.html#section_2">Sobre nosotros</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link click-scroll" href="index.html#section_3">Eventos</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link click-scroll" href="index.html#section_4">Fechas</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link click-scroll" href="index.html#section_5">Precios</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link click-scroll" href="index.html#section_6">Contacto</a>
+                        </li>
+
+                        <li class="nav-item" id="loginLogin">
+                        <a class="nav-link btn btn-success" href="login.html" id="btnLogin">Iniciar sesión</a>
+                        </li>
+
+                        <li class="nav-item d-none" id="userBox">
+                            <span class="nav-link">
+                                <strong id="userGreeting" display="none;"></strong>
+                            </span>
+                        </li>
+
+                        <li class="nav-item d-none" id="logoutLink">
+                            <a class="nav-link btn btn-outline-danger" href="#" id="btnLogout">Cerrar sesión</a>
+                        </li>
+                    </ul>                    
+                </div>
+            </div>
+        </nav>
+
+
+        <section class="ticket-section section-padding">
+            <div class="section-overlay"></div>
+
+            <div class="container">
+                <div class="row">
+
+                   <div class="col-lg-6 col-10 mx-auto">
+
+                    <form class="custom-form ticket-form mb-5 mb-lg-0 shadow-lg p-4 rounded bg-white" 
+                        action="guardar_ticket.php" method="post" role="form">
+                    
+                    
+
+                    <h2 class="text-center mb-4 text-primary fw-bold">Compra tu Plan</h2>
+
+                    <div class="ticket-form-body">
+
+                        <div class="row">
+                            <div class="col-lg-6 mb-3">
+                                <input type="text" name="ticket-form-name" id="ticket-form-name"
+                                    class="form-control" placeholder="Nombre Completo" required>
+                            </div>
+
+                            <div class="col-lg-6 mb-3">
+                                <input type="tel" class="form-control" name="ticket-form-phone"
+                                    id="ticket-form-phone" placeholder="Teléfono" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <input type="email" name="ticket-form-email" id="ticket-form-email"
+                                class="form-control" placeholder="Correo Electrónico" required>
+                        </div>
+
+                        <h6 class="fw-bold mt-3">Escoge el tipo de Plan</h6>
+
+                        <div class="row mb-3 g-2">
+
+                            <div class="col-md-4">
+                                <div class="form-check border rounded p-2 bg-light">
+                                    <input class="form-check-input" type="radio" name="ticket-form-type"
+                                        id="radio-std" value="Estandar" required>
+                                    <label class="form-check-label fw-semibold" for="radio-std">
+                                        Estandar – $110
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-check border rounded p-2 bg-light">
+                                    <input class="form-check-input" type="radio" name="ticket-form-type"
+                                        id="radio-prem" value="Premium" required>
+                                    <label class="form-check-label fw-semibold" for="radio-prem">
+                                        Premium – $210
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- NUEVO PLAN -->
+                            <div class="col-md-4">
+                                <div class="form-check border rounded p-2 bg-light">
+                                    <input class="form-check-input" type="radio" name="ticket-form-type"
+                                        id="radio-plat" value="Platinium" required>
+                                    <label class="form-check-label fw-semibold" for="radio-plat">
+                                        Platinium – $350
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+
+        <!-- Datos de tarjeta -->
+        <h6 class="fw-bold">Datos de la Tarjeta</h6>
+
+        <div class="mb-3">
+            <input type="text" name="card-number" id="card-number"
+                class="form-control" placeholder="Número de Tarjeta (16 dígitos)"
+                pattern="\d{16}" maxlength="16" required>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <input type="text" name="card-expiry" id="card-expiry"
+                    class="form-control" placeholder="MM/AA"
+                    pattern="(0[1-9]|1[0-2])\/\d{2}" required>
+            </div>
+
+            <div class="col-md-6">
+                <input type="text" name="card-cvv" id="card-cvv"
+                    class="form-control" placeholder="CVV (3 dígitos)"
+                    pattern="\d{3}" maxlength="3" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <textarea name="ticket-form-message" rows="3" class="form-control"
+                id="ticket-form-message" placeholder="Mensaje de verificación"></textarea>
+        </div>
+
+        <!-- Checkbox Términos -->
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="termsCheck">
+            <label class="form-check-label" for="termsCheck">
+                Acepto los <a href="terminos.html" target="_blank">Términos y Condiciones</a>.
+            </label>
+        </div>
+
+        <!-- Botón -->
+        <div class="col-lg-6 col-md-8 col-10 mx-auto">
+            <button type="submit" id="btnComprar" class="form-control btn btn-primary" disabled>
+                Comprar Plan
+            </button>
+        </div>
+
+    </div>
+</form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+
+    <footer class="site-footer">
+        <div class="site-footer-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6 col-12">
+                        <h2 class="text-white mb-lg-0">EventosParaTi</h2>
+                    </div>
+
+                    <div class="col-lg-6 col-12 d-flex justify-content-lg-end align-items-center">
+                        <ul class="social-icon d-flex justify-content-lg-end">
+                            <li class="social-icon-item">
+                                <a href="https://twitter.com/ViapaseOnline" target="_blank" rel="noopener" class="social-icon-link" title="twitter">
+                                    <span class="bi-twitter"></span>
+                                </a>
+                            </li>
+
+                            <li class="social-icon-item">
+                                <a href="https://music.apple.com/" target="_blank" rel="noopener" class="social-icon-link" title="Apple Music">
+                                    <span class="bi-apple"></span>
+                                </a>
+                            </li>
+
+                            <li class="social-icon-item">
+                                <a href="https://www.instagram.com/ViapaseOnline" target="_blank" rel="noopener" class="social-icon-link" title="instagram">
+                                    <span class="bi-instagram"></span>
+                                </a>
+                            </li>
+
+                            <li class="social-icon-item">
+                                <a href="https://www.youtube.com/channel/UC1234567890" target="_blank" rel="noopener" class="social-icon-link" title="youtube">
+                                    <span class="bi-youtube"></span>
+                                </a>
+                            </li>
+
+                            <li class="social-icon-item">
+                                <a href="https://www.pinterest.com/ViapaseOnline" target="_blank" rel="noopener" class="social-icon-link" title="pinterest">
+                                    <span class="bi-pinterest"></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+
+                <div class="col-lg-6 col-12 mb-4 pb-2">
+                    <h5 class="site-footer-title mb-3">Links</h5>
+
+                    <ul class="site-footer-links">
+                        <li class="site-footer-link-item">
+                            <a href="index.html#section_1" class="site-footer-link">Inicio</a>
+                        </li>
+
+                        <li class="site-footer-link-item">
+                            <a href="index.html#section_2" class="site-footer-link">Sobre nosotros</a>
+                        </li>
+
+                        <li class="site-footer-link-item">
+                            <a href="index.html#section_3" class="site-footer-link">Artistas</a>
+                        </li>
+
+                        <li class="site-footer-link-item">
+                            <a href="index.html#section_4" class="site-footer-link">Fechas</a>
+                        </li>
+
+                        <li class="site-footer-link-item">
+                            <a href="index.html#section_5" class="site-footer-link">Precios</a>
+                        </li>
+
+                        <li class="site-footer-link-item">
+                            <a href="index.html#section_6" class="site-footer-link">Contacto</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6 col-12 mb-4 mb-lg-0">
+                    <h5 class="site-footer-title mb-3">Otra Consulta?</h5>
+
+                    <p class="text-white d-flex mb-1">
+                        <a href="tel: 090-080-0760" class="site-footer-link">
+                            +51 901548645
+                        </a>
+                    </p>
+
+                    <p class="text-white d-flex">
+                        <a href="mailto:Viapasee@companits.com" class="site-footer-link">
+                            EventosParaTi@companits.com
+                        </a>
+                    </p>
+                </div>
+
+                <div class="col-lg-3 col-md-6 col-11 mb-4 mb-lg-0 mb-md-0">
+                    <h5 class="site-footer-title mb-3">Locación</h5>
+
+                    <p class="text-white d-flex mt-3 mb-2">
+                       Estadio Nacional, Multiespacios Costa 21, Anfiteatro Parque de la Exposicion</p>
+
+                    <a class="link-fx-1 color-contrast-higher mt-3" 
+                        href="https://www.google.com/maps/search/?api=1&query=Estadio+Nacional+Lima+Peru" 
+                        target="_blank" rel="noopener">
+                        <span>Mapa</span>
+                        <svg class="icon" viewBox="0 0 32 32" aria-hidden="true">
+                            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="16" cy="16" r="15.5"></circle>
+                                <line x1="10" y1="18" x2="16" y2="12"></line>
+                                <line x1="16" y1="12" x2="22" y2="18"></line>
+                            </g>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="site-footer-bottom">
+            <div class="container">
+                <div class="row">
+
+                    <div class="col-lg-3 col-12 mt-5">
+                        <p class="copyright-text">Copyright © 2025 ViaPase</p>
+                        <p class="copyright-text">Hecho por: <a href="https://themewagon.com">Grupo 11 - UTP</a></p>
+                    </div>
+
+                    <div class="col-lg-8 col-12 mt-lg-5">
+                        <ul class="site-footer-links">
+                            <li class="site-footer-link-item">
+                                <a href="terminos.html" class="site-footer-link">Terminos &amp; Condiciones</a>
+                            </li>
+
+                            <li class="site-footer-link-item">
+                                <a href="terminos.html#privacidad" class="site-footer-link">Privacidad Politica</a>
+                            </li>
+
+                            <li class="site-footer-link-item">
+                                <a href="terminos.html#feedback" class="site-footer-link">Nuestro Feedback</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!--
+
+T e m p l a t e M o
+
+-->
+    <!-- JAVASCRIPT FILES -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.sticky.js"></script>
+    <script src="js/custom.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+
+    // Habilitar / bloquear por checkbox
+    document.getElementById("termsCheck").addEventListener("change", function () {
+        document.getElementById("btnComprar").disabled = !this.checked;
+    });
+
+    try {
+        const res = await fetch("auth.php");
+        const data = await res.json();
+        const btnComprar = document.getElementById("btnComprar");
+
+        // Si NO está logueado → redirigir
+        if (!data.logged) {
+            alert("Debes iniciar sesión para comprar un ticket.");
+            window.location.href = "login.html";
+            return;
+        }
+
+        // Si está logueado → permitir compra
+        btnComprar.disabled = true; // sigue bloqueado por términos
+        document.getElementById("ticket-form-name").value = data.username;
+
+    } catch (err) {
+        console.error("Error verificando sesión:", err);
+    }
+});
+
+</script>
+
+</body>
+
+</html>

@@ -1,21 +1,41 @@
 # EventosParaTi
 
-Proyecto académico desarrollado para el curso de Herramientas de Desarrollo - Universidad Tecnológica del Perú (UTP) 2026.
+Proyecto desarrollado para el curso de Herramientas de Desarrollo - Universidad Tecnologica del Peru (UTP) 2026.
 
----
+## Requisitos
 
-## Configuración Inicial del Repositorio
+- XAMPP (con Apache y MySQL activos)
+- Navegador web
 
-Para iniciar el proyecto, se creó un repositorio centralizado en GitHub con el nombre **EventosParaTi**. Se inicializó con un archivo `README.md` y un `.gitignore` para evitar subir archivos temporales de XAMPP o carpetas de configuración del IDE.
+## Instalacion
 
-### Pasos Realizados
+1. Descargar o clonar el repositorio:
 
-1. **Creación del repositorio** en la interfaz web de GitHub.
+```
+git clone https://github.com/Matmat251/EventosParaTi.git
+```
 
-2. **Vinculación local** con el repositorio remoto:
-   ```bash
-   git remote add origin https://github.com/Matmat251/EventosParaTi
-   ```
+2. Copiar la carpeta del proyecto dentro de la carpeta `htdocs` de XAMPP. Por ejemplo:
 
-3. **Configuración de credenciales** de los integrantes del equipo.
+```
+C:\xampp\htdocs\EventosParaTi
+```
+
+3. Abrir XAMPP y activar los servicios de Apache y MySQL.
+
+4. Abrir el navegador e ingresar la siguiente direccion:
+
+```
+http://localhost/EventosParaTi/frontend/index.html
+```
+
+## Estructura del proyecto
+
+```
+EventosParaTi/
+├── frontend/       Archivos HTML, CSS y JavaScript
+├── backend/        Archivos PHP para el procesamiento del servidor
+├── .gitignore
+└── README.md
+```
 

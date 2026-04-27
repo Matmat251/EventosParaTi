@@ -1,0 +1,88 @@
+body {
+    background: url("../images/FutbolMusica.jpg") no-repeat center center fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    position: relative;
+
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 1;
+}
+
+.login-card {
+    position: relative;
+    z-index: 2; /* Para que esté encima del overlay */
+    width: 100%;
+    max-width: 420px;
+    padding: 30px;
+    border-radius: 15px;
+    background: linear-gradient(to right, rgb(162, 186, 176), rgb(123, 171, 123));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4); }
+
+a.back-button {
+    position: fixed !important;
+    top: 20px !important;
+    left: 20px !important;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* espacio entre icono y texto */
+    font-size: 1.5rem !important;
+    color: #0c0424 !important;
+    text-decoration: none !important;
+    z-index: 9999 !important;
+    transition: transform 0.2s, color 0.2s;
+}
+
+/* Icono */
+a.back-button i {
+    color: inherit !important;
+    font-size: inherit !important;
+}
+
+/* Hover */
+a.back-button:hover {
+    color: #8794c3 !important;
+    transform: scale(1.1);
+}
+
+.login-card h3 {
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to right, #00f2fe, #4facfe);
+}
+
+
+
+.form-text a {
+    text-decoration: none;
+    font-weight: 600;
+}
