@@ -1,6 +1,6 @@
 # EventosParaTi
 
-Proyecto web de venta de tickets para patrocinios  - Universidad Tecnologica del Peru (UTP) 2026.
+Proyecto web de venta de tickets para conciertos y eventos - Universidad Tecnologica del Peru (UTP) 2026.
 
 ## Requisitos
 
@@ -37,3 +37,5 @@ EventosParaTi/
 ├── backend/        Archivos PHP para el procesamiento del servidor
 ├── .gitignore
 └── README.md
+```
+
