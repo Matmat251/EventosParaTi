@@ -1,6 +1,6 @@
 # EventosParaTi
 
-Proyecto web de venta de tickets para eventos  - Universidad Tecnologica del Peru (UTP) 2026.
+Proyecto web de venta de tickets para patrocinios  - Universidad Tecnologica del Peru (UTP) 2026.
 
 ## Requisitos
 
