@@ -1,6 +1,6 @@
 # EventosParaTi
 
-Proyecto de gestion y compra de tickets en linea - Universidad Tecnologica del Peru (UTP) 2026.
+Proyecto web de venta de tickets para eventos  - Universidad Tecnologica del Peru (UTP) 2026.
 
 ## Requisitos
 
