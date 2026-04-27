@@ -1,6 +1,6 @@
 # EventosParaTi
 
-Proyecto desarrollado para el curso de Herramientas de Desarrollo - Universidad Tecnologica del Peru (UTP) 2026.
+Proyecto web de venta de tickets para eventos - Universidad Tecnologica del Peru (UTP) 2026.
 
 ## Requisitos
 
@@ -37,5 +37,3 @@ EventosParaTi/
 ├── backend/        Archivos PHP para el procesamiento del servidor
 ├── .gitignore
 └── README.md
-```
-
