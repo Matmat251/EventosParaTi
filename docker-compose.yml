@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  app:
+    image: php:8.1-apache
+    container_name: eventosparati_app
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: eventosparati_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: eventosparati
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      # Al mapear el schema, MySQL lo ejecutara automaticamente al crear el contenedor
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+volumes:
+  db_data:

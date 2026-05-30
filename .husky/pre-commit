@@ -1,0 +1,37 @@
+#!/bin/sh
+echo "========================================================"
+echo " Husky: Ejecutando Pre-commit Hook"
+echo "========================================================"
+
+# Verificar si hay archivos PHP en el commit
+FILES=$(git diff --cached --name-only --diff-filter=ACM | grep "\.php$")
+
+if [ -z "$FILES" ]; then
+    echo "[+] No hay archivos PHP para verificar."
+    echo "========================================================"
+    exit 0
+fi
+
+echo "[+] Ejecutando linter de PHP..."
+
+if command -v php &> /dev/null; then
+    PASS=true
+    for FILE in $FILES; do
+        php -l "$FILE" > /dev/null
+        if [ $? -ne 0 ]; then
+            echo "ERROR: Fallo de sintaxis detectado en $FILE"
+            PASS=false
+        fi
+    done
+
+    if [ "$PASS" = "false" ]; then
+        echo ""
+        echo "=> Abortando commit. Por favor, corrige los errores."
+        echo "========================================================"
+        exit 1
+    fi
+
+echo " -> Todos los archivos PHP pasaron la verificacion correctamente."
+echo "========================================================"
+echo " Commit permitido."
+echo "========================================================"
