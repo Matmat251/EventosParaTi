@@ -1,0 +1,44 @@
+{
+    "name": "matmat251/eventosparati",
+    "description": "Plataforma web para la venta y gestion de tickets de eventos y conciertos en Peru",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Equipo EventosParaTi",
+            "email": "contacto@eventosparati.pe"
+        }
+    ],
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "EventosParaTi\\": "backend/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "EventosParaTi\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "lint": "find backend/ -name '*.php' -exec php -l {} \\;",
+        "analyse": "vendor/bin/phpstan analyse --configuration=phpstan.neon",
+        "test": "vendor/bin/phpunit --testdox",
+        "test:integration": "php tests/integration/integration_tests.php",
+        "check": [
+            "@lint",
+            "@analyse"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable"
+}
