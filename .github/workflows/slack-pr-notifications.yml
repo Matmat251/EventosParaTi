@@ -1,0 +1,245 @@
+# ================================================================
+#  WORKFLOW: Notificaciones de Pull Requests a Slack
+#  Canal destino: #code-reviews
+#
+#  Este workflow se activa cuando se crea, actualiza o aprueba
+#  un Pull Request, notificando al equipo en Slack para agilizar
+#  las revisiones de codigo (Code Review).
+# ================================================================
+name: PR Notifications - Slack
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, review_requested]
+    branches:
+      - main
+      - develop
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  # ---------------------------------------------------------------
+  #  Notificar cuando se ABRE un nuevo Pull Request
+  # ---------------------------------------------------------------
+  notify-pr-opened:
+    name: "\U0001F514 Notificar PR Nuevo"
+    if: >
+      github.event_name == 'pull_request' && 
+      (github.event.action == 'opened' || github.event.action == 'reopened') &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "\U0001F4E2 Notificar a Slack - Nuevo PR"
+        if: env.SLACK_WEBHOOK_REVIEWS != ''
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ env.SLACK_WEBHOOK_REVIEWS }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "🔀 Nuevo Pull Request - Se requiere Code Review",
+                    "emoji": true
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*<${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}>*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    { "type": "mrkdwn", "text": "*Autor:*\n${{ github.event.pull_request.user.login }}" },
+                    { "type": "mrkdwn", "text": "*Rama:*\n`${{ github.event.pull_request.head.ref }}` → `${{ github.event.pull_request.base.ref }}`" },
+                    { "type": "mrkdwn", "text": "*Archivos modificados:*\n${{ github.event.pull_request.changed_files }}" },
+                    { "type": "mrkdwn", "text": "*Commits:*\n${{ github.event.pull_request.commits }}" }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "📝 *Descripcion:*\n${{ github.event.pull_request.body || 'Sin descripcion proporcionada' }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "⏳ Esperando *Code Review* del equipo. Recuerda verificar: legibilidad, seguridad y que el CI pase en verde."
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": { "type": "plain_text", "text": "👀 Revisar PR" },
+                      "url": "${{ github.event.pull_request.html_url }}",
+                      "style": "primary"
+                    },
+                    {
+                      "type": "button",
+                      "text": { "type": "plain_text", "text": "📂 Ver Cambios" },
+                      "url": "${{ github.event.pull_request.html_url }}/files"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_REVIEWS: ${{ secrets.SLACK_WEBHOOK_REVIEWS }}
+
+  # ---------------------------------------------------------------
+  #  Notificar cuando se APRUEBA un Pull Request
+  # ---------------------------------------------------------------
+  notify-pr-review:
+    name: "\U0001F4DD Notificar Review Completado"
+    if: >
+      github.event_name == 'pull_request_review' && 
+      github.event.review.state == 'approved'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "\U0001F4E2 Notificar a Slack - PR Aprobado"
+        if: env.SLACK_WEBHOOK_REVIEWS != ''
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ env.SLACK_WEBHOOK_REVIEWS }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "✅ Pull Request APROBADO",
+                    "emoji": true
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*<${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}>*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    { "type": "mrkdwn", "text": "*Aprobado por:*\n${{ github.event.review.user.login }} ✅" },
+                    { "type": "mrkdwn", "text": "*Autor del PR:*\n${{ github.event.pull_request.user.login }}" }
+                  ]
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "✅ Este PR ha sido aprobado y esta listo para ser mergeado a `${{ github.event.pull_request.base.ref }}`"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": { "type": "plain_text", "text": "🔀 Hacer Merge" },
+                      "url": "${{ github.event.pull_request.html_url }}",
+                      "style": "primary"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_REVIEWS: ${{ secrets.SLACK_WEBHOOK_REVIEWS }}
+
+  # ---------------------------------------------------------------
+  #  Notificar cuando se SOLICITAN CAMBIOS en un PR
+  # ---------------------------------------------------------------
+  notify-pr-changes-requested:
+    name: "⚠️ Notificar Cambios Solicitados"
+    if: >
+      github.event_name == 'pull_request_review' && 
+      github.event.review.state == 'changes_requested'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "\U0001F4E2 Notificar a Slack - Cambios Solicitados"
+        if: env.SLACK_WEBHOOK_REVIEWS != ''
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ env.SLACK_WEBHOOK_REVIEWS }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "⚠️ Se Solicitan Cambios en PR",
+                    "emoji": true
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*<${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}>*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    { "type": "mrkdwn", "text": "*Revisor:*\n${{ github.event.review.user.login }}" },
+                    { "type": "mrkdwn", "text": "*Autor del PR:*\n${{ github.event.pull_request.user.login }}" }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "💬 *Comentario del revisor:*\n${{ github.event.review.body || 'Sin comentario adicional' }}"
+                  }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "🔧 El autor del PR debe corregir los cambios solicitados antes de volver a solicitar revision."
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": { "type": "plain_text", "text": "📝 Ver Comentarios" },
+                      "url": "${{ github.event.review.html_url }}",
+                      "style": "danger"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_REVIEWS: ${{ secrets.SLACK_WEBHOOK_REVIEWS }}
