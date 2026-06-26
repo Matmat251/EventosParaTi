@@ -31,7 +31,11 @@ if command -v php &> /dev/null; then
         exit 1
     fi
 
-echo " -> Todos los archivos PHP pasaron la verificacion correctamente."
-echo "========================================================"
-echo " Commit permitido."
-echo "========================================================"
+    echo " -> Todos los archivos PHP pasaron la verificacion correctamente."
+    echo "========================================================"
+    echo " Commit permitido."
+    echo "========================================================"
+else
+    echo "[!] PHP no encontrado, omitiendo linter."
+    echo "========================================================"
+fi
