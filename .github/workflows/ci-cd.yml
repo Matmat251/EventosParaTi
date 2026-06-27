@@ -172,16 +172,36 @@ jobs:
           echo "=============================================="
 
       # --------------------------------------------------
-      # PASO 6: Verificacion Docker Compose
+      # PASO 6: Build REAL de imagen Docker personalizada
       # --------------------------------------------------
-      - name: "🐳 Verificacion de Docker Compose"
+      - name: "🐳 Build de imagen Docker personalizada (REAL)"
         run: |
           echo "=============================================="
-          echo "  Validando configuracion Docker"
+          echo "  Construyendo imagen Docker desde Dockerfile"
           echo "=============================================="
+          echo "📋 Validando docker-compose.yml..."
           docker compose config --quiet \
-            && echo "✅ docker-compose.yml es sintacticamente valido" \
-            || echo "⚠️ docker-compose.yml tiene advertencias"
+            && echo "  ✅ docker-compose.yml valido"
+
+          echo ""
+          echo "🏗️ Construyendo imagen desde Dockerfile propio..."
+          docker build \
+            --tag eventosparati/app:ci-${{ github.sha }} \
+            --tag eventosparati/app:latest \
+            --file Dockerfile \
+            --label "git-commit=${{ github.sha }}" \
+            --label "build-date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            .
+
+          echo ""
+          echo "📦 Imagen construida exitosamente:"
+          docker images eventosparati/app --format "  Tag: {{.Tag}} | Size: {{.Size}} | Created: {{.CreatedAt}}"
+          echo ""
+          echo "🔍 Verificando extensiones PHP instaladas en la imagen..."
+          docker run --rm eventosparati/app:latest php -m | grep -E "mysqli|pdo|mbstring" \
+            && echo "  ✅ Extensiones mysqli, pdo, mbstring verificadas"
+          echo ""
+          echo "✅ Docker build exitoso — Imagen lista para despliegue"
 
       # --------------------------------------------------
       # SLACK: Notificacion resultado CI

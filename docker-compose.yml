@@ -1,28 +1,96 @@
 version: '3.8'
 
+# ================================================================
+#  Docker Compose — EventosParaTi
+#
+#  Servicios:
+#    app       → Aplicacion PHP 8.1 + Apache (imagen personalizada)
+#    db        → Base de datos MySQL 8.0
+#    phpmyadmin→ Gestor visual de base de datos
+#
+#  Inicio rapido:
+#    docker-compose up -d --build
+#    Aplicacion:  http://localhost:8000
+#    phpMyAdmin:  http://localhost:8080
+# ================================================================
+
 services:
+
+  # ── Servicio 1: Aplicacion PHP + Apache ────────────────────────
   app:
-    image: php:8.1-apache
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: eventosparati_app
+    restart: unless-stopped
     ports:
       - "8000:80"
-    volumes:
-      - .:/var/www/html
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASS: root
+      DB_NAME: eventosparati
+      DB_PORT: 3306
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    networks:
+      - eventosparati_net
+    volumes:
+      # Hot reload del codigo en desarrollo (no copiar en produccion)
+      - ./frontend:/var/www/html/frontend
+      - ./backend:/var/www/html/backend
 
+  # ── Servicio 2: Base de datos MySQL 8.0 ────────────────────────
   db:
     image: mysql:8.0
     container_name: eventosparati_db
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: eventosparati
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
-      # Al mapear el schema, MySQL lo ejecutara automaticamente al crear el contenedor
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      # El schema se aplica automaticamente al crear el contenedor
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    # Healthcheck real: verifica que MySQL acepta conexiones
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - eventosparati_net
 
+  # ── Servicio 3: phpMyAdmin (Gestor visual de BD) ───────────────
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: eventosparati_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - eventosparati_net
+
+# ── Volumen persistente para datos de MySQL ───────────────────────
 volumes:
   db_data:
+    driver: local
+
+# ── Red interna del proyecto ──────────────────────────────────────
+networks:
+  eventosparati_net:
+    driver: bridge
