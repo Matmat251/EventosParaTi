@@ -1,16 +1,8 @@
 # ================================================================
-#  WORKFLOW: Pruebas de Integración — EventosParaTi
-#  
-#  Ejecuta la suite de pruebas de integracion IT-01 a IT-05
-#  contra una base de datos MySQL real en contenedor Docker,
-#  validando conectividad, concurrencia y atomicidad.
-#
-#  Se activa en:
-#   - Pull Requests hacia develop y main
-#   - Push a develop y main
-#   - Ejecucion manual (workflow_dispatch)
+#  WORKFLOW: Pruebas de Integracion - EventosParaTi
+#  Ejecuta la suite IT-01 a IT-05 contra MySQL real en Docker.
 # ================================================================
-name: Pruebas de Integración
+name: Pruebas de Integracion
 
 on:
   push:
@@ -21,10 +13,9 @@ on:
 
 jobs:
   integration-tests:
-    name: "🧪 Suite de Integración IT-01 ~ IT-05"
+    name: "Suite de Integracion IT-01 a IT-05"
     runs-on: ubuntu-latest
 
-    # ── Servicio MySQL real en contenedor ──────────────────────
     services:
       mysql:
         image: mysql:8.0
@@ -42,50 +33,45 @@ jobs:
           --health-retries=5
 
     steps:
-      # ── 1. Obtener el código ───────────────────────────────
-      - name: "📥 Checkout del código"
+      - name: "Checkout del codigo"
         uses: actions/checkout@v4
 
-      # ── 2. Configurar PHP con extensiones MySQL ────────────
-      - name: "🖥️ Configurar PHP 8.1 + mysqli"
+      - name: "Configurar PHP 8.1 + mysqli"
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
           extensions: mysqli, pdo, pdo_mysql, mbstring
 
-      # ── 3. Esperar que MySQL esté completamente listo ──────
-      - name: "⏳ Esperar inicialización de MySQL"
+      - name: "Esperar inicializacion de MySQL"
         run: |
           echo "Esperando que MySQL acepte conexiones..."
           for i in {1..20}; do
             if mysqladmin ping -h 127.0.0.1 -u root -proot --silent 2>/dev/null; then
-              echo "✅ MySQL listo en intento $i"
+              echo "[OK] MySQL listo en intento $i"
               break
             fi
-            echo "  Intento $i/20 — esperando 3s..."
+            echo "  Intento $i/20 - esperando 3s..."
             sleep 3
           done
 
-      # ── 4. Inicializar el schema de la base de datos ───────
-      - name: "🗄️ Inicializar Schema MySQL"
+      - name: "Inicializar Schema MySQL"
         run: |
-          echo "══════════════════════════════════════════════════"
+          echo "=============================================="
           echo "  Aplicando database/schema.sql a MySQL de prueba"
-          echo "══════════════════════════════════════════════════"
+          echo "=============================================="
           mysql -h 127.0.0.1 -u root -proot < database/schema.sql
-          echo "✅ Schema aplicado correctamente"
+          echo "[OK] Schema aplicado correctamente"
           echo ""
           echo "  Tablas creadas:"
           mysql -h 127.0.0.1 -u root -proot eventosparati -e "SHOW TABLES;" 2>/dev/null
 
-      # ── 5. Verificar conexión y tablas ────────────────────
-      - name: "🔍 Verificar estructura de base de datos"
+      - name: "Verificar estructura de base de datos"
         run: |
-          echo "══════════════════════════════════════════════════"
+          echo "=============================================="
           echo "  Verificando tablas e integridad referencial"
-          echo "══════════════════════════════════════════════════"
+          echo "=============================================="
           mysql -h 127.0.0.1 -u root -proot eventosparati -e "
-            SELECT 
+            SELECT
               TABLE_NAME AS 'Tabla',
               TABLE_ROWS AS 'Filas',
               ENGINE AS 'Motor',
@@ -93,10 +79,9 @@ jobs:
             FROM information_schema.TABLES
             WHERE TABLE_SCHEMA = 'eventosparati';
           " 2>/dev/null
-          echo "✅ Estructura verificada"
+          echo "[OK] Estructura verificada"
 
-      # ── 6. Ejecutar Suite de Pruebas de Integración ───────
-      - name: "🧪 Ejecutar IT-01 ~ IT-05: Suite de Integración"
+      - name: "Ejecutar IT-01 a IT-05: Suite de Integracion"
         env:
           DB_HOST: 127.0.0.1
           DB_USER: root
@@ -104,18 +89,17 @@ jobs:
           DB_NAME: eventosparati
           DB_PORT: 3306
         run: |
-          echo "══════════════════════════════════════════════════"
-          echo "  Lanzando suite de pruebas de integración"
-          echo "══════════════════════════════════════════════════"
+          echo "=============================================="
+          echo "  Lanzando suite de pruebas de integracion"
+          echo "=============================================="
           php tests/integration/integration_tests.php
 
-      # ── 7. Reporte de estado final de la BD ───────────────
-      - name: "📊 Reporte de estado post-pruebas"
+      - name: "Reporte de estado post-pruebas"
         if: always()
         run: |
-          echo "══════════════════════════════════════════════════"
-          echo "  Estado de tablas tras la ejecución de pruebas"
-          echo "══════════════════════════════════════════════════"
+          echo "=============================================="
+          echo "  Estado de tablas tras la ejecucion de pruebas"
+          echo "=============================================="
           mysql -h 127.0.0.1 -u root -proot eventosparati -e "
             SELECT 'usuarios' AS tabla, COUNT(*) AS registros FROM usuarios
             UNION ALL
@@ -124,8 +108,7 @@ jobs:
             SELECT 'contactos', COUNT(*) FROM contactos;
           " 2>/dev/null || echo "BD no disponible para reporte"
 
-      # ── 8. Notificar a Slack resultado de integración ─────
-      - name: "📢 Notificar a Slack — Integración Exitosa"
+      - name: "Notificar a Slack - Integracion Exitosa"
         if: success() && env.SLACK_WEBHOOK_CI != ''
         uses: slackapi/slack-github-action@v2.0.0
         with:
@@ -138,16 +121,16 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "🧪 Pruebas de Integración EXITOSAS - EventosParaTi",
-                    "emoji": true
+                    "text": "Pruebas de Integracion EXITOSAS - EventosParaTi",
+                    "emoji": false
                   }
                 },
                 {
                   "type": "section",
                   "fields": [
-                    { "type": "mrkdwn", "text": "*Pruebas:*\nIT-01 ~ IT-05 ✅" },
+                    { "type": "mrkdwn", "text": "*Pruebas:*\nIT-01 a IT-05 - PASADAS" },
                     { "type": "mrkdwn", "text": "*Rama:*\n`${{ github.ref_name }}`" },
-                    { "type": "mrkdwn", "text": "*BD:*\nMySQL 8.0 en contenedor ✅" },
+                    { "type": "mrkdwn", "text": "*BD:*\nMySQL 8.0 en contenedor" },
                     { "type": "mrkdwn", "text": "*Autor:*\n${{ github.actor }}" }
                   ]
                 },
@@ -155,7 +138,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "✅ Conectividad, concurrencia y atomicidad verificadas correctamente."
+                    "text": "Conectividad, concurrencia y atomicidad verificadas correctamente."
                   }
                 },
                 {
@@ -163,7 +146,7 @@ jobs:
                   "elements": [
                     {
                       "type": "button",
-                      "text": { "type": "plain_text", "text": "📋 Ver Logs" },
+                      "text": { "type": "plain_text", "text": "Ver Logs" },
                       "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                     }
                   ]
@@ -173,7 +156,7 @@ jobs:
         env:
           SLACK_WEBHOOK_CI: ${{ secrets.SLACK_WEBHOOK_CI }}
 
-      - name: "🚨 Notificar a Slack — Integración Fallida"
+      - name: "Notificar a Slack - Integracion Fallida"
         if: failure() && env.SLACK_WEBHOOK_CI != ''
         uses: slackapi/slack-github-action@v2.0.0
         with:
@@ -186,8 +169,8 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "❌ Pruebas de Integración FALLIDAS - EventosParaTi",
-                    "emoji": true
+                    "text": "Pruebas de Integracion FALLIDAS - EventosParaTi",
+                    "emoji": false
                   }
                 },
                 {
@@ -201,7 +184,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "⚠️ Revisar los logs antes de continuar con el merge."
+                    "text": "Revisar los logs antes de continuar con el merge."
                   }
                 },
                 {
@@ -209,7 +192,7 @@ jobs:
                   "elements": [
                     {
                       "type": "button",
-                      "text": { "type": "plain_text", "text": "🔍 Ver Errores" },
+                      "text": { "type": "plain_text", "text": "Ver Errores" },
                       "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
                       "style": "danger"
                     }

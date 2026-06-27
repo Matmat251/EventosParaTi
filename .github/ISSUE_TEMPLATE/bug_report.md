@@ -1,5 +1,5 @@
 ---
-name: "\U0001F41B Reporte de Bug"
+name: "Reporte de Bug"
 about: "Reportar un error o comportamiento inesperado en la plataforma"
 title: "[BUG] "
 labels: bug, prioridad:media
@@ -36,4 +36,3 @@ assignees: ''
 
 ## Contexto Adicional
 <!-- Cualquier informacion extra relevante -->
-

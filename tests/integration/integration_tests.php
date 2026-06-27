@@ -1,19 +1,19 @@
 <?php
 /**
- * Suite de Pruebas de Integración — EventosParaTi
+ * Suite de Pruebas de Integracion - EventosParaTi
  * ================================================
  * Valida la interoperabilidad entre capas:
  *   - Conectividad frontend/backend (simulada)
  *   - Persistencia en base de datos MySQL
- *   - Integridad bajo concurrencia (peticiones simultáneas)
- *   - Consistencia atómica de transacciones
+ *   - Integridad bajo concurrencia (peticiones simultaneas)
+ *   - Consistencia atomica de transacciones
  *
  * Uso: php tests/integration/integration_tests.php
  */
 
-// ─────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------
 //  CONFIGURACION
-// ─────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------
 define('DB_HOST',  getenv('DB_HOST')  ?: 'localhost');
 define('DB_USER',  getenv('DB_USER')  ?: 'root');
 define('DB_PASS',  getenv('DB_PASS')  ?: '');
@@ -24,14 +24,14 @@ $passed = 0;
 $failed = 0;
 $startTime = microtime(true);
 
-// ─────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------
 //  HELPERS DE LOG
-// ─────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------
 function log_header(string $title): void {
     echo PHP_EOL;
-    echo "══════════════════════════════════════════════════════════════" . PHP_EOL;
+    echo "==============================================================" . PHP_EOL;
     echo "  {$title}" . PHP_EOL;
-    echo "══════════════════════════════════════════════════════════════" . PHP_EOL;
+    echo "==============================================================" . PHP_EOL;
 }
 
 function log_pass(string $id, string $msg): void {
@@ -63,20 +63,20 @@ function getConnection(): ?mysqli {
     return $conn;
 }
 
-// ─────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------
 //  INICIO
-// ─────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------
 echo PHP_EOL;
-echo "╔══════════════════════════════════════════════════════════════╗" . PHP_EOL;
-echo "║    SUITE DE PRUEBAS DE INTEGRACION — EventosParaTi          ║" . PHP_EOL;
-echo "║    Entorno: " . strtoupper(php_uname('s')) . " | PHP " . PHP_VERSION . str_repeat(' ', 22) . "║" . PHP_EOL;
-echo "║    Base de datos: " . DB_HOST . ":" . DB_PORT . "/" . DB_NAME . str_repeat(' ', 14) . "║" . PHP_EOL;
-echo "╚══════════════════════════════════════════════════════════════╝" . PHP_EOL;
+echo "+------------------------------------------------------------+" . PHP_EOL;
+echo "|    SUITE DE PRUEBAS DE INTEGRACION - EventosParaTi          |" . PHP_EOL;
+echo "|    Entorno: " . str_pad(strtoupper(php_uname('s')) . " | PHP " . PHP_VERSION, 47) . "|" . PHP_EOL;
+echo "|    Base de datos: " . str_pad(DB_HOST . ":" . DB_PORT . "/" . DB_NAME, 41) . "|" . PHP_EOL;
+echo "+------------------------------------------------------------+" . PHP_EOL;
 echo "  Inicio: " . date('Y-m-d H:i:s') . PHP_EOL;
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  IT-01: PERSISTENCIA Y CONECTIVIDAD
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 log_header("IT-01: PERSISTENCIA Y CONECTIVIDAD");
 log_info("Verificando conectividad con MySQL en " . DB_HOST . ":" . DB_PORT);
 
@@ -89,7 +89,7 @@ if ($conn === null) {
     log_pass("IT-01-A", "Conexion establecida correctamente con MySQL " . mysqli_get_server_info($conn));
 }
 
-// Verificar que las 3 tablas críticas existen
+// Verificar que las 3 tablas criticas existen
 if ($conn) {
     $tablas = ['usuarios', 'tickets', 'contactos'];
     foreach ($tablas as $tabla) {
@@ -97,7 +97,7 @@ if ($conn) {
         if ($res && $res->num_rows > 0) {
             log_pass("IT-01-B", "Tabla '{$tabla}' verificada en la base de datos");
         } else {
-            log_fail("IT-01-B", "Tabla '{$tabla}' NO encontrada — ejecutar database/schema.sql");
+            log_fail("IT-01-B", "Tabla '{$tabla}' NO encontrada - ejecutar database/schema.sql");
         }
     }
 
@@ -108,12 +108,12 @@ if ($conn) {
         log_pass("IT-01-C", "Charset de base de datos: " . strtoupper($row['charset']));
     }
 
-    log_info("Capa de conectividad: frontend → backend → MySQL OPERATIVA");
+    log_info("Capa de conectividad: frontend -> backend -> MySQL OPERATIVA");
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  IT-02: VALIDACION DE ESTRUCTURA DE MODULOS BACKEND
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 log_header("IT-02: VALIDACION DE MODULOS BACKEND");
 
 $modulos = [
@@ -132,9 +132,9 @@ foreach ($modulos as $archivo => $descripcion) {
         // Verificar que la sintaxis PHP es correcta
         $output = shell_exec("php -l {$ruta} 2>&1");
         if (strpos($output, 'No syntax errors') !== false) {
-            log_pass("IT-02", "{$archivo} — Sintaxis OK | {$descripcion}");
+            log_pass("IT-02", "{$archivo} - Sintaxis OK | {$descripcion}");
         } else {
-            log_fail("IT-02", "{$archivo} — Error de sintaxis detectado");
+            log_fail("IT-02", "{$archivo} - Error de sintaxis detectado");
         }
     } else {
         log_fail("IT-02", "Archivo no encontrado: {$archivo}");
@@ -146,15 +146,15 @@ $loginContent    = @file_get_contents(__DIR__ . '/../../backend/login.php');
 $registerContent = @file_get_contents(__DIR__ . '/../../backend/guardarRegister.php');
 
 if ($loginContent && strpos($loginContent, 'prepare(') !== false) {
-    log_pass("IT-02-SEC", "login.php usa prepared statements — Protegido contra SQL Injection");
+    log_pass("IT-02-SEC", "login.php usa prepared statements - Protegido contra SQL Injection");
 }
 if ($registerContent && strpos($registerContent, 'password_hash(') !== false) {
-    log_pass("IT-02-SEC", "guardarRegister.php usa password_hash() — Cifrado de credenciales correcto");
+    log_pass("IT-02-SEC", "guardarRegister.php usa password_hash() - Cifrado de credenciales correcto");
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  IT-03: INTEGRIDAD BAJO CONCURRENCIA
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 log_header("IT-03: INTEGRIDAD BAJO CONCURRENCIA");
 log_info("Simulando 5 peticiones de registro simultaneas a la BD...");
 
@@ -172,7 +172,7 @@ if ($conn) {
     for ($i = 1; $i <= $peticiones; $i++) {
         $tInicio = microtime(true);
 
-        // Simular email único por petición (sin colisión)
+        // Simular email unico por peticion (sin colision)
         $email    = 'test_concurrent_' . $i . '_' . time() . '@eventosparati.test';
         $nombre   = "Usuario Test {$i}";
         $password = password_hash("TestPass{$i}!", PASSWORD_DEFAULT);
@@ -193,12 +193,12 @@ if ($conn) {
 
         $tFin    = microtime(true);
         $tiempos[] = round(($tFin - $tInicio) * 1000, 2);
-        log_info("  Peticion #{$i} completada en " . end($tiempos) . " ms — email: {$email}");
+        log_info("  Peticion #{$i} completada en " . end($tiempos) . " ms - email: {$email}");
     }
 
     $promedio = round(array_sum($tiempos) / count($tiempos), 2);
     log_pass("IT-03-A", "{$totalInsertados}/{$peticiones} registros insertados sin colisiones ni duplicados");
-    log_pass("IT-03-B", "Tiempo promedio por transaccion: {$promedio} ms — Sin condiciones de carrera detectadas");
+    log_pass("IT-03-B", "Tiempo promedio por transaccion: {$promedio} ms - Sin condiciones de carrera detectadas");
     log_info("Tiempos individuales: " . implode(' ms | ', $tiempos) . " ms");
 
     // Verificar que se registraron todos sin duplicados
@@ -220,9 +220,9 @@ if ($conn) {
     log_info("Datos de prueba eliminados de la base de datos");
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  IT-04: CONSISTENCIA ATOMICA DE TRANSACCIONES
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 log_header("IT-04: CONSISTENCIA ATOMICA DE TRANSACCIONES");
 log_info("Simulando fallo de pasarela de pago y verificando rollback atomico...");
 
@@ -233,8 +233,8 @@ if ($conn) {
     $ticketAntes   = (int)$row['total'];
     log_info("Tickets en BD antes de la prueba: {$ticketAntes}");
 
-    // ── Escenario A: Pago aceptado → debe registrar ticket ──
-    log_info("Escenario A: Pago APROBADO → se espera registro exitoso en tabla tickets");
+    // Escenario A: Pago aceptado - debe registrar ticket
+    log_info("Escenario A: Pago APROBADO - se espera registro exitoso en tabla tickets");
 
     $conn->begin_transaction();
     try {
@@ -250,7 +250,7 @@ if ($conn) {
         $usuarioId = $conn->insert_id;
         $stmt->close();
 
-        // Simular pago aprobado → insertar ticket
+        // Simular pago aprobado - insertar ticket
         $stmt = $conn->prepare(
             "INSERT INTO tickets (usuario_id, evento, cantidad, precio_total) VALUES (?, ?, ?, ?)"
         );
@@ -262,15 +262,15 @@ if ($conn) {
         $stmt->close();
 
         $conn->commit();
-        log_pass("IT-04-A", "Pago APROBADO — Ticket registrado atomicamente en BD (usuario_id: {$usuarioId})");
+        log_pass("IT-04-A", "Pago APROBADO - Ticket registrado atomicamente en BD (usuario_id: {$usuarioId})");
 
     } catch (Exception $e) {
         $conn->rollback();
         log_fail("IT-04-A", "Error inesperado: " . $e->getMessage());
     }
 
-    // ── Escenario B: Pago rechazado → NO debe registrar ticket ──
-    log_info("Escenario B: Pago RECHAZADO → se espera ROLLBACK, sin registro en tickets");
+    // Escenario B: Pago rechazado - NO debe registrar ticket
+    log_info("Escenario B: Pago RECHAZADO - se espera ROLLBACK, sin registro en tickets");
 
     $ticketAntesFallo = 0;
     $res = $conn->query("SELECT COUNT(*) AS total FROM tickets");
@@ -283,7 +283,7 @@ if ($conn) {
         $stmt = $conn->prepare(
             "INSERT INTO tickets (usuario_id, evento, cantidad, precio_total) VALUES (?, ?, ?, ?)"
         );
-        $usuarioIdFallo = 99999; // ID inexistente — violará FOREIGN KEY
+        $usuarioIdFallo = 99999; // ID inexistente - violara FOREIGN KEY
         $eventoFallo    = 'Evento Fallido';
         $cantidadFallo  = 1;
         $precioFallo    = 90.00;
@@ -293,10 +293,10 @@ if ($conn) {
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         try {
             $stmt->execute();
-            $conn->rollback(); // Forzar rollback si por alguna razón se inserta
+            $conn->rollback(); // Forzar rollback si por alguna razon se inserta
         } catch (mysqli_sql_exception $e) {
             $conn->rollback();
-            log_pass("IT-04-B", "Pago RECHAZADO — Rollback atomico ejecutado. BD protegida. Error capturado: FK constraint");
+            log_pass("IT-04-B", "Pago RECHAZADO - Rollback atomico ejecutado. BD protegida. Error capturado: FK constraint");
         }
         $stmt->close();
         mysqli_report(MYSQLI_REPORT_OFF);
@@ -306,13 +306,13 @@ if ($conn) {
         log_pass("IT-04-B", "Rollback forzado correctamente: " . $e->getMessage());
     }
 
-    // Verificar que el conteo de tickets no aumentó por el fallo
+    // Verificar que el conteo de tickets no aumento por el fallo
     $res = $conn->query("SELECT COUNT(*) AS total FROM tickets");
     $row = $res->fetch_assoc();
     $ticketDespuesFallo = (int)$row['total'];
 
     if ($ticketDespuesFallo === $ticketAntesFallo) {
-        log_pass("IT-04-C", "Integridad confirmada: ningún ticket espurio fue persistido tras el fallo de pasarela");
+        log_pass("IT-04-C", "Integridad confirmada: ningun ticket espurio fue persistido tras el fallo de pasarela");
     } else {
         log_fail("IT-04-C", "Se detectaron registros no esperados tras el fallo");
     }
@@ -323,9 +323,9 @@ if ($conn) {
     log_info("Datos de prueba eliminados de la base de datos");
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  IT-05: VALIDACION DEL SCHEMA SQL
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 log_header("IT-05: VALIDACION DEL SCHEMA SQL");
 
 $schemaPath = __DIR__ . '/../../database/schema.sql';
@@ -353,31 +353,30 @@ if (file_exists($schemaPath)) {
     log_fail("IT-05", "database/schema.sql no encontrado");
 }
 
-// ─────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------
 //  RESUMEN FINAL
-// ─────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------
 if ($conn) $conn->close();
 
 $duracion = round(microtime(true) - $startTime, 3);
 $total    = $passed + $failed;
 
 echo PHP_EOL;
-echo "╔══════════════════════════════════════════════════════════════╗" . PHP_EOL;
-echo "║                 RESUMEN DE EJECUCION                        ║" . PHP_EOL;
-echo "╠══════════════════════════════════════════════════════════════╣" . PHP_EOL;
-echo "║  Total de verificaciones : {$total}" . str_repeat(' ', 35 - strlen((string)$total)) . "║" . PHP_EOL;
-echo "║  Pasadas  [PASS]         : {$passed}" . str_repeat(' ', 35 - strlen((string)$passed)) . "║" . PHP_EOL;
-echo "║  Fallidas [FAIL]         : {$failed}" . str_repeat(' ', 35 - strlen((string)$failed)) . "║" . PHP_EOL;
-echo "║  Duracion total          : {$duracion}s" . str_repeat(' ', 34 - strlen((string)$duracion)) . "║" . PHP_EOL;
-echo "╠══════════════════════════════════════════════════════════════╣" . PHP_EOL;
+echo "+------------------------------------------------------------+" . PHP_EOL;
+echo "|                 RESUMEN DE EJECUCION                       |" . PHP_EOL;
+echo "+------------------------------------------------------------+" . PHP_EOL;
+echo "|  Total de verificaciones : " . str_pad($total, 32) . " |" . PHP_EOL;
+echo "|  Pasadas  [PASS]         : " . str_pad($passed, 32) . " |" . PHP_EOL;
+echo "|  Fallidas [FAIL]         : " . str_pad($failed, 32) . " |" . PHP_EOL;
+echo "|  Duracion total          : " . str_pad($duracion . "s", 32) . " |" . PHP_EOL;
+echo "+------------------------------------------------------------+" . PHP_EOL;
 
 if ($failed === 0) {
-    echo "║  RESULTADO: ✅  TODAS LAS PRUEBAS PASARON EXITOSAMENTE      ║" . PHP_EOL;
+    echo "|  RESULTADO: [OK] TODAS LAS PRUEBAS PASARON EXITOSAMENTE    |" . PHP_EOL;
 } else {
-    echo "║  RESULTADO: ❌  SE DETECTARON {$failed} FALLO(S)                     ║" . PHP_EOL;
+    echo "|  RESULTADO: [FALLO] SE DETECTARON " . str_pad($failed, 2) . " FALLO(S)                 |" . PHP_EOL;
 }
-
-echo "╚══════════════════════════════════════════════════════════════╝" . PHP_EOL;
+echo "+------------------------------------------------------------+" . PHP_EOL;
 echo PHP_EOL;
 
 exit($failed > 0 ? 1 : 0);

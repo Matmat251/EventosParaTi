@@ -1,10 +1,6 @@
 # ================================================================
 #  WORKFLOW: Reporte Semanal Automatizado a Slack
 #  Canal destino: #general
-#
-#  Se ejecuta automaticamente todos los lunes a las 9:00 AM (UTC-5)
-#  Envia un resumen semanal del estado del repositorio al equipo.
-#  Tambien se puede ejecutar manualmente desde GitHub Actions.
 # ================================================================
 name: Reporte Semanal - Slack
 
@@ -16,57 +12,49 @@ on:
 
 jobs:
   weekly-report:
-    name: "\U0001F4CA Generar Reporte Semanal"
+    name: "Generar Reporte Semanal"
     runs-on: ubuntu-latest
 
     steps:
-      - name: "\U0001F4E5 Checkout del codigo"
+      - name: "Checkout del codigo"
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: "\U0001F4CA Recopilar metricas del repositorio"
+      - name: "Recopilar metricas del repositorio"
         id: metrics
         run: |
           echo "=============================================="
           echo "  Recopilando metricas del repositorio"
           echo "=============================================="
 
-          # Commits de la ultima semana
           COMMITS_WEEK=$(git log --oneline --since="7 days ago" | wc -l)
           echo "commits_week=$COMMITS_WEEK" >> $GITHUB_OUTPUT
 
-          # Archivos PHP totales
           PHP_FILES=$(find backend/ -name "*.php" | wc -l)
           echo "php_files=$PHP_FILES" >> $GITHUB_OUTPUT
 
-          # Archivos HTML totales
           HTML_FILES=$(find frontend/ -name "*.html" | wc -l)
           echo "html_files=$HTML_FILES" >> $GITHUB_OUTPUT
 
-          # Archivos JS totales
           JS_FILES=$(find frontend/ -name "*.js" ! -name "*.min.js" | wc -l)
           echo "js_files=$JS_FILES" >> $GITHUB_OUTPUT
 
-          # Total de lineas de codigo PHP
           PHP_LINES=$(find backend/ -name "*.php" -exec cat {} \; | wc -l)
           echo "php_lines=$PHP_LINES" >> $GITHUB_OUTPUT
 
-          # Contribuidores unicos esta semana
           CONTRIBUTORS=$(git log --since="7 days ago" --format='%an' | sort -u | wc -l)
           echo "contributors=$CONTRIBUTORS" >> $GITHUB_OUTPUT
 
-          # Ultimo commit
           LAST_COMMIT=$(git log -1 --format='%s')
           echo "last_commit=$LAST_COMMIT" >> $GITHUB_OUTPUT
 
-          # Ramas activas
           BRANCHES=$(git branch -r | grep -v HEAD | wc -l)
           echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
 
-          echo "✅ Metricas recopiladas exitosamente"
+          echo "[OK] Metricas recopiladas exitosamente"
 
-      - name: "\U0001F4E2 Enviar Reporte Semanal a Slack"
+      - name: "Enviar Reporte Semanal a Slack"
         if: env.SLACK_WEBHOOK_GENERAL != ''
         uses: slackapi/slack-github-action@v2.0.0
         with:
@@ -79,8 +67,8 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "📊 Reporte Semanal - EventosParaTi",
-                    "emoji": true
+                    "text": "Reporte Semanal - EventosParaTi",
+                    "emoji": false
                   }
                 },
                 {
@@ -97,7 +85,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*📈 Actividad de la Semana:*"
+                    "text": "*Actividad de la Semana:*"
                   }
                 },
                 {
@@ -116,7 +104,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*📁 Metricas del Codigo:*"
+                    "text": "*Metricas del Codigo:*"
                   }
                 },
                 {
@@ -136,7 +124,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": "🤖 Reporte generado automaticamente por GitHub Actions | <${{ github.server_url }}/${{ github.repository }}|Ver Repositorio>"
+                      "text": "Reporte generado automaticamente por GitHub Actions | <${{ github.server_url }}/${{ github.repository }}|Ver Repositorio>"
                     }
                   ]
                 }
