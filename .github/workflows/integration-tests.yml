@@ -1,0 +1,204 @@
+# ================================================================
+#  WORKFLOW: Pruebas de Integracion - EventosParaTi
+#  Ejecuta la suite IT-01 a IT-05 contra MySQL real en Docker.
+# ================================================================
+name: Pruebas de Integracion
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  integration-tests:
+    name: "Suite de Integracion IT-01 a IT-05"
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: eventosparati
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: "Checkout del codigo"
+        uses: actions/checkout@v4
+
+      - name: "Configurar PHP 8.1 + mysqli"
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mysqli, pdo, pdo_mysql, mbstring
+
+      - name: "Esperar inicializacion de MySQL"
+        run: |
+          echo "Esperando que MySQL acepte conexiones..."
+          for i in {1..20}; do
+            if mysqladmin ping -h 127.0.0.1 -u root -proot --silent 2>/dev/null; then
+              echo "[OK] MySQL listo en intento $i"
+              break
+            fi
+            echo "  Intento $i/20 - esperando 3s..."
+            sleep 3
+          done
+
+      - name: "Inicializar Schema MySQL"
+        run: |
+          echo "=============================================="
+          echo "  Aplicando database/schema.sql a MySQL de prueba"
+          echo "=============================================="
+          mysql -h 127.0.0.1 -u root -proot < database/schema.sql
+          echo "[OK] Schema aplicado correctamente"
+          echo ""
+          echo "  Tablas creadas:"
+          mysql -h 127.0.0.1 -u root -proot eventosparati -e "SHOW TABLES;" 2>/dev/null
+
+      - name: "Verificar estructura de base de datos"
+        run: |
+          echo "=============================================="
+          echo "  Verificando tablas e integridad referencial"
+          echo "=============================================="
+          mysql -h 127.0.0.1 -u root -proot eventosparati -e "
+            SELECT
+              TABLE_NAME AS 'Tabla',
+              TABLE_ROWS AS 'Filas',
+              ENGINE AS 'Motor',
+              TABLE_COLLATION AS 'Colacion'
+            FROM information_schema.TABLES
+            WHERE TABLE_SCHEMA = 'eventosparati';
+          " 2>/dev/null
+          echo "[OK] Estructura verificada"
+
+      - name: "Ejecutar IT-01 a IT-05: Suite de Integracion"
+        env:
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASS: root
+          DB_NAME: eventosparati
+          DB_PORT: 3306
+        run: |
+          echo "=============================================="
+          echo "  Lanzando suite de pruebas de integracion"
+          echo "=============================================="
+          php tests/integration/integration_tests.php
+
+      - name: "Reporte de estado post-pruebas"
+        if: always()
+        run: |
+          echo "=============================================="
+          echo "  Estado de tablas tras la ejecucion de pruebas"
+          echo "=============================================="
+          mysql -h 127.0.0.1 -u root -proot eventosparati -e "
+            SELECT 'usuarios' AS tabla, COUNT(*) AS registros FROM usuarios
+            UNION ALL
+            SELECT 'tickets', COUNT(*) FROM tickets
+            UNION ALL
+            SELECT 'contactos', COUNT(*) FROM contactos;
+          " 2>/dev/null || echo "BD no disponible para reporte"
+
+      - name: "Notificar a Slack - Integracion Exitosa"
+        if: success() && env.SLACK_WEBHOOK_CI != ''
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ env.SLACK_WEBHOOK_CI }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Pruebas de Integracion EXITOSAS - EventosParaTi",
+                    "emoji": false
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    { "type": "mrkdwn", "text": "*Pruebas:*\nIT-01 a IT-05 - PASADAS" },
+                    { "type": "mrkdwn", "text": "*Rama:*\n`${{ github.ref_name }}`" },
+                    { "type": "mrkdwn", "text": "*BD:*\nMySQL 8.0 en contenedor" },
+                    { "type": "mrkdwn", "text": "*Autor:*\n${{ github.actor }}" }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Conectividad, concurrencia y atomicidad verificadas correctamente."
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": { "type": "plain_text", "text": "Ver Logs" },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_CI: ${{ secrets.SLACK_WEBHOOK_CI }}
+
+      - name: "Notificar a Slack - Integracion Fallida"
+        if: failure() && env.SLACK_WEBHOOK_CI != ''
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ env.SLACK_WEBHOOK_CI }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Pruebas de Integracion FALLIDAS - EventosParaTi",
+                    "emoji": false
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    { "type": "mrkdwn", "text": "*Rama:*\n`${{ github.ref_name }}`" },
+                    { "type": "mrkdwn", "text": "*Autor:*\n${{ github.actor }}" }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Revisar los logs antes de continuar con el merge."
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": { "type": "plain_text", "text": "Ver Errores" },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                      "style": "danger"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_CI: ${{ secrets.SLACK_WEBHOOK_CI }}

@@ -1,5 +1,5 @@
 ---
-name: "✨ Solicitud de Funcionalidad"
+name: "Solicitud de Funcionalidad"
 about: "Proponer una nueva funcionalidad o mejora para la plataforma"
 title: "[FEATURE] "
 labels: enhancement, prioridad:media
@@ -29,4 +29,3 @@ assignees: ''
 - Archivos a modificar:
 - Dependencias nuevas:
 - Impacto en la base de datos:
-

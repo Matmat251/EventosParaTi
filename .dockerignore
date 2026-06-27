@@ -1,0 +1,49 @@
+# ================================================================
+#  .dockerignore — EventosParaTi
+#  Archivos excluidos al construir la imagen Docker
+#  Reduce el tamaño de la imagen y el tiempo de build
+# ================================================================
+
+# Control de versiones
+.git
+.gitignore
+.github/
+
+# Dependencias y builds locales
+vendor/
+node_modules/
+build/
+
+# Variables de entorno sensibles
+.env
+.env.local
+.env.*.local
+config.local.php
+
+# IDE y editores
+.vscode/
+.idea/
+*.code-workspace
+
+# Logs
+*.log
+/logs/
+/tmp/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Scripts de configuracion (no necesarios en produccion)
+setup.sh
+.husky/
+
+# Archivos de documentacion (opcionales en imagen)
+*.md
+docs/
+
+# Archivos de testing (no van en produccion)
+tests/
+phpunit.xml
+phpstan.neon

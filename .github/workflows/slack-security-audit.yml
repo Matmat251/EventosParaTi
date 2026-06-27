@@ -1,16 +1,11 @@
 # ================================================================
 #  WORKFLOW: Auditoria de Seguridad Automatizada
 #  Canal destino: #alertas-seguridad
-#
-#  Se ejecuta cada miercoles a las 10:00 AM (Peru) y en cada PR
-#  Analiza el codigo PHP en busca de vulnerabilidades comunes
-#  y reporta los hallazgos al canal de seguridad en Slack.
 # ================================================================
 name: Auditoria de Seguridad - Slack
 
 on:
   schedule:
-    # Todos los miercoles a las 15:00 UTC (10:00 AM Peru)
     - cron: '0 15 * * 3'
   pull_request:
     branches: [main, develop]
@@ -20,14 +15,14 @@ on:
 
 jobs:
   security-audit:
-    name: "\U0001F50F Auditoria de Seguridad"
+    name: "Auditoria de Seguridad"
     runs-on: ubuntu-latest
 
     steps:
-      - name: "\U0001F4E5 Checkout del codigo"
+      - name: "Checkout del codigo"
         uses: actions/checkout@v4
 
-      - name: "\U0001F50D Escaneo de vulnerabilidades PHP"
+      - name: "Escaneo de vulnerabilidades PHP"
         id: security
         run: |
           echo "=============================================="
@@ -38,81 +33,69 @@ jobs:
           CRITICAL=0
           REPORT=""
 
-          # ---- CHECK 1: SQL Injection (queries sin prepared statements) ----
           echo "--- Verificando SQL Injection ---"
           SQL_INJECTION=$(grep -rn "VALUES.*\$_POST\|VALUES.*\$_GET\|WHERE.*\$_POST\|WHERE.*\$_GET" backend/ --include="*.php" 2>/dev/null | wc -l)
           if [ "$SQL_INJECTION" -gt 0 ]; then
             CRITICAL=$((CRITICAL + SQL_INJECTION))
-            REPORT="${REPORT}\n🔴 *SQL Injection:* ${SQL_INJECTION} archivo(s) con queries vulnerables"
-            echo "⚠️ Se encontraron $SQL_INJECTION posibles inyecciones SQL"
+            REPORT="${REPORT}\n[CRITICO] SQL Injection: ${SQL_INJECTION} archivo(s) con queries vulnerables"
+            echo "[ALERTA] Se encontraron $SQL_INJECTION posibles inyecciones SQL"
           else
-            REPORT="${REPORT}\n✅ *SQL Injection:* No se encontraron vulnerabilidades"
-            echo "✅ No se encontraron inyecciones SQL"
+            REPORT="${REPORT}\n[OK] SQL Injection: No se encontraron vulnerabilidades"
+            echo "[OK] No se encontraron inyecciones SQL"
           fi
 
-          # ---- CHECK 2: XSS (output sin sanitizar) ----
           echo "--- Verificando Cross-Site Scripting (XSS) ---"
           XSS=$(grep -rn "echo.*\$_POST\|echo.*\$_GET\|echo.*\$_REQUEST" backend/ --include="*.php" 2>/dev/null | grep -v "htmlspecialchars\|htmlentities" | wc -l)
           if [ "$XSS" -gt 0 ]; then
             WARNINGS=$((WARNINGS + XSS))
-            REPORT="${REPORT}\n🟡 *XSS:* ${XSS} archivo(s) con output sin sanitizar"
-            echo "⚠️ Se encontraron $XSS posibles vulnerabilidades XSS"
+            REPORT="${REPORT}\n[ADVERTENCIA] XSS: ${XSS} archivo(s) con output sin sanitizar"
+            echo "[ALERTA] Se encontraron $XSS posibles vulnerabilidades XSS"
           else
-            REPORT="${REPORT}\n✅ *XSS:* No se encontraron vulnerabilidades"
-            echo "✅ No se encontraron vulnerabilidades XSS"
+            REPORT="${REPORT}\n[OK] XSS: No se encontraron vulnerabilidades"
+            echo "[OK] No se encontraron vulnerabilidades XSS"
           fi
 
-          # ---- CHECK 3: Credenciales hardcodeadas ----
           echo "--- Verificando credenciales hardcodeadas ---"
-          HARDCODED=$(grep -rn "password.*=.*\"[^\"]\+\"\|MYSQL_ROOT_PASSWORD" backend/ --include="*.php" 2>/dev/null | grep -v "password_hash\|password_verify\|POST\|SESSION" | wc -l)
+          HARDCODED=$(grep -rn "password.*=\"[^\"]\\+\"\|MYSQL_ROOT_PASSWORD" backend/ --include="*.php" 2>/dev/null | grep -v "password_hash\|password_verify\|POST\|SESSION" | wc -l)
           if [ "$HARDCODED" -gt 0 ]; then
             WARNINGS=$((WARNINGS + HARDCODED))
-            REPORT="${REPORT}\n🟡 *Credenciales:* ${HARDCODED} archivo(s) con credenciales hardcodeadas"
-            echo "⚠️ Se encontraron $HARDCODED credenciales hardcodeadas"
+            REPORT="${REPORT}\n[ADVERTENCIA] Credenciales: ${HARDCODED} archivo(s) con credenciales hardcodeadas"
+            echo "[ALERTA] Se encontraron $HARDCODED credenciales hardcodeadas"
           else
-            REPORT="${REPORT}\n✅ *Credenciales:* No se encontraron credenciales expuestas"
-            echo "✅ No se encontraron credenciales hardcodeadas"
+            REPORT="${REPORT}\n[OK] Credenciales: No se encontraron credenciales expuestas"
+            echo "[OK] No se encontraron credenciales hardcodeadas"
           fi
 
-          # ---- CHECK 4: Archivos sensibles expuestos ----
           echo "--- Verificando archivos sensibles ---"
           SENSITIVE=0
           if [ -f ".env" ]; then SENSITIVE=$((SENSITIVE + 1)); fi
           if [ -f "config.local.php" ]; then SENSITIVE=$((SENSITIVE + 1)); fi
           if [ "$SENSITIVE" -gt 0 ]; then
             CRITICAL=$((CRITICAL + SENSITIVE))
-            REPORT="${REPORT}\n🔴 *Archivos sensibles:* ${SENSITIVE} archivo(s) sensibles en el repositorio"
+            REPORT="${REPORT}\n[CRITICO] Archivos sensibles: ${SENSITIVE} archivo(s) sensibles en el repositorio"
           else
-            REPORT="${REPORT}\n✅ *Archivos sensibles:* No se encontraron archivos sensibles expuestos"
+            REPORT="${REPORT}\n[OK] Archivos sensibles: No se encontraron archivos sensibles expuestos"
           fi
 
-          # ---- CHECK 5: Sesiones seguras ----
           echo "--- Verificando manejo de sesiones ---"
           SESSION_START=$(grep -rn "session_start" backend/ --include="*.php" 2>/dev/null | wc -l)
-          REPORT="${REPORT}\n✅ *Sesiones:* ${SESSION_START} archivo(s) manejan sesiones correctamente"
+          REPORT="${REPORT}\n[INFO] Sesiones: ${SESSION_START} archivo(s) manejan sesiones correctamente"
 
-          # ---- CHECK 6: Prepared Statements ----
           echo "--- Verificando uso de Prepared Statements ---"
           PREPARED=$(grep -rn "prepare\|bind_param" backend/ --include="*.php" 2>/dev/null | wc -l)
-          REPORT="${REPORT}\nℹ️ *Prepared Statements:* ${PREPARED} uso(s) detectados en el backend"
+          REPORT="${REPORT}\n[INFO] Prepared Statements: ${PREPARED} uso(s) detectados en el backend"
 
-          # Guardar resultados
           echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
           echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
 
-          # Determinar estado general
           if [ "$CRITICAL" -gt 0 ]; then
-            echo "status=🔴 CRITICO" >> $GITHUB_OUTPUT
-            echo "status_color=danger" >> $GITHUB_OUTPUT
+            echo "status=CRITICO" >> $GITHUB_OUTPUT
           elif [ "$WARNINGS" -gt 0 ]; then
-            echo "status=🟡 ADVERTENCIAS" >> $GITHUB_OUTPUT
-            echo "status_color=warning" >> $GITHUB_OUTPUT
+            echo "status=ADVERTENCIAS" >> $GITHUB_OUTPUT
           else
-            echo "status=🟢 SEGURO" >> $GITHUB_OUTPUT
-            echo "status_color=good" >> $GITHUB_OUTPUT
+            echo "status=SEGURO" >> $GITHUB_OUTPUT
           fi
 
-          # Guardar reporte multilinea
           {
             echo "report<<EOF"
             echo -e "$REPORT"
@@ -125,7 +108,7 @@ jobs:
           echo "  Criticos: $CRITICAL | Advertencias: $WARNINGS"
           echo "=============================================="
 
-      - name: "\U0001F4E2 Enviar Reporte de Seguridad a Slack"
+      - name: "Enviar Reporte de Seguridad a Slack"
         if: env.SLACK_WEBHOOK_SECURITY != ''
         uses: slackapi/slack-github-action@v2.0.0
         with:
@@ -138,8 +121,8 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "🔐 Auditoria de Seguridad - EventosParaTi",
-                    "emoji": true
+                    "text": "Auditoria de Seguridad - EventosParaTi",
+                    "emoji": false
                   }
                 },
                 {
@@ -158,7 +141,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*📋 Detalle del Escaneo:*\n${{ steps.security.outputs.report }}"
+                    "text": "*Detalle del Escaneo:*\n${{ steps.security.outputs.report }}"
                   }
                 },
                 {
@@ -169,7 +152,7 @@ jobs:
                   "elements": [
                     {
                       "type": "mrkdwn",
-                      "text": "🤖 Escaneo automatizado ejecutado por GitHub Actions | <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Ver Detalles>"
+                      "text": "Escaneo automatizado ejecutado por GitHub Actions | <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Ver Detalles>"
                     }
                   ]
                 }

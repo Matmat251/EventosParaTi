@@ -1,0 +1,25 @@
+parameters:
+    # Nivel de analisis: 3 es intermedio, detecta errores reales sin ser excesivo
+    # Niveles: 0 (basico) → 9 (estricto)
+    level: 3
+
+    # Directorios a analizar
+    paths:
+        - backend
+
+    # Directorios a ignorar
+    excludePaths:
+        - backend/config
+
+    # Reportar errores en archivos que no tienen declare(strict_types)
+    reportUnmatchedIgnoredErrors: false
+
+    # Ignorar errores especificos esperados en PHP legado sin tipos estrictos
+    ignoreErrors:
+        # Variables superglobales $_POST, $_GET, $_SESSION son mixed por naturaleza
+        - '#Variable \$_POST#'
+        - '#Variable \$_GET#'
+        - '#Variable \$_SESSION#'
+        - '#Cannot access offset .* on mixed#'
+        # mysqli puede retornar false en algunos contextos — aceptable en este nivel
+        - '#Call to an undefined method mysqli_result#'
