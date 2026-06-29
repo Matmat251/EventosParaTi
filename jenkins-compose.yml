@@ -1,0 +1,37 @@
+version: '3.8'
+
+# ================================================================
+#  jenkins-compose.yml - Entorno Jenkins para EventosParaTi
+#
+#  Uso:
+#    docker compose -f jenkins-compose.yml up -d --build
+#
+#  Acceso:
+#    Jenkins: http://localhost:8085
+# ================================================================
+
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    container_name: eventosparati_jenkins
+    restart: unless-stopped
+    ports:
+      - "8085:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      # Compartir el socket de Docker para poder ejecutar builds dentro de Jenkins
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - eventosparati_net
+
+volumes:
+  jenkins_data:
+    driver: local
+
+networks:
+  eventosparati_net:
+    name: eventosparati_eventosparati_net
+    driver: bridge

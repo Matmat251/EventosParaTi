@@ -1,0 +1,47 @@
+# ================================================================
+#  Dockerfile.jenkins - Imagen personalizada de Jenkins
+#  Incluye PHP 8.1, Composer y Docker CLI para ejecutar el pipeline
+#  de EventosParaTi sin dependencias locales.
+# ================================================================
+
+FROM jenkins/jenkins:lts-jdk17
+
+USER root
+
+# Instalar dependencias basicas, PHP 8.1 y extensiones
+RUN apt-get update && apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release \
+    software-properties-common \
+    zip \
+    unzip \
+    && apt-get clean
+
+# Agregar repositorio de PHP y instalar PHP 8.1 + extensiones necesarias
+RUN apt-get update && apt-get install -y \
+    php-cli \
+    php-common \
+    php-mysql \
+    php-mbstring \
+    php-xml \
+    php-curl \
+    php-zip \
+    && apt-get clean
+
+# Instalar Composer globalmente
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Instalar Docker CLI para interactuar con el socket del host
+RUN mkdir -p /etc/apt/keyrings \
+    && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
+    && apt-get update && apt-get install -y docker-ce-cli && apt-get clean
+
+# Asegurar que el usuario jenkins pertenezca al grupo docker (para permisos)
+RUN groupadd -g 999 docker || true \
+    && usermod -aG docker jenkins
+
+USER jenkins
