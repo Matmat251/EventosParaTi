@@ -5,6 +5,10 @@ pipeline {
         // Rutas de herramientas en Windows
         PHP_CMD = 'C:\\php\\php.exe'
         COMPOSER_CMD = 'C:\\php\\composer.bat'
+        
+        // Agregar PHP al PATH de ejecucion para procesos secundarios (como shell_exec)
+        PATH = "C:\\php;${env.PATH}"
+        Path = "C:\\php;${env.Path}"
 
         // Configuracion por defecto para las pruebas de integracion (MySQL de XAMPP por defecto no tiene password)
         DB_HOST = '127.0.0.1'
@@ -56,7 +60,14 @@ pipeline {
         stage('Pruebas de Integracion') {
             steps {
                 echo 'Ejecutando suite de pruebas de integracion contra base de datos...'
-                bat '%PHP_CMD% tests\\integration\\integration_tests.php || ver > nul'
+                bat '''
+                    @echo off
+                    C:\\php\\php.exe tests\\integration\\integration_tests.php
+                    if %errorlevel% neq 0 (
+                        echo   [WARNING] Algunas pruebas de integracion fallaron, pero continuamos el pipeline.
+                    )
+                    exit /b 0
+                '''
             }
         }
 
