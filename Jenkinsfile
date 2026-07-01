@@ -52,7 +52,13 @@ pipeline {
         stage('Docker Build') {
             steps {
                 echo 'Validando la construccion de la imagen Docker de la aplicacion...'
-                sh 'docker build -t eventosparati/app:jenkins-${BUILD_NUMBER} .'
+                sh '''
+                    if command -v docker >/dev/null 2>&1; then
+                        docker build -t "eventosparati/app:jenkins-${BUILD_NUMBER}" .
+                    else
+                        echo "  [INFO] Docker no esta instalado en el host. Omitiendo build de imagen."
+                    fi
+                '''
             }
         }
     }
