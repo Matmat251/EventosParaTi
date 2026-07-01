@@ -81,6 +81,7 @@ pipeline {
                         docker build -t "eventosparati/app:jenkins-%BUILD_NUMBER%" .
                     ) else (
                         echo   [INFO] Docker no esta instalado en el host. Omitiendo build de imagen.
+                        exit /b 0
                     )
                 '''
             }
