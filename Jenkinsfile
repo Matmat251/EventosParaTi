@@ -2,6 +2,10 @@ pipeline {
     agent any
 
     environment {
+        // Rutas de herramientas en Windows
+        PHP_CMD = 'C:\\php\\php.exe'
+        COMPOSER_CMD = 'C:\\php\\composer.bat'
+
         // Configuracion por defecto para las pruebas de integracion
         DB_HOST = '127.0.0.1'
         DB_USER = 'root'
@@ -14,15 +18,15 @@ pipeline {
         stage('Preparar Entorno') {
             steps {
                 echo 'Descargando codigo y preparando espacio de trabajo...'
-                bat 'php -v'
-                bat 'composer --version'
+                bat '%PHP_CMD% -v'
+                bat '%COMPOSER_CMD% --version'
             }
         }
 
         stage('Instalar Dependencias') {
             steps {
                 echo 'Instalando dependencias de Composer (PHPStan y PHPUnit)...'
-                bat 'composer install --no-interaction --prefer-dist --optimize-autoloader'
+                bat '%COMPOSER_CMD% install --no-interaction --prefer-dist --optimize-autoloader'
             }
         }
 
@@ -34,7 +38,7 @@ pipeline {
                     setlocal enabledelayedexpansion
                     set "ERRORS=0"
                     for /r backend %%f in (*.php) do (
-                        php -l "%%f"
+                        C:\\php\\php.exe -l "%%f"
                         if !errorlevel! neq 0 set "ERRORS=1"
                     )
                     if !ERRORS! equ 1 exit /b 1
@@ -45,14 +49,14 @@ pipeline {
         stage('Analisis Estatico (PHPStan)') {
             steps {
                 echo 'Ejecutando analisis estatico con PHPStan (nivel 3)...'
-                bat 'call vendor\\bin\\phpstan.bat analyse --configuration=phpstan.neon --no-progress'
+                bat '%PHP_CMD% vendor\\phpstan\\phpstan\\phpstan.phar analyse --configuration=phpstan.neon --no-progress'
             }
         }
 
         stage('Pruebas de Integracion') {
             steps {
                 echo 'Ejecutando suite de pruebas de integracion contra base de datos...'
-                bat 'php tests\\integration\\integration_tests.php'
+                bat '%PHP_CMD% tests\\integration\\integration_tests.php'
             }
         }
 
