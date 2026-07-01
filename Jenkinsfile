@@ -2,6 +2,9 @@ pipeline {
     agent any
 
     environment {
+        // Agregar Git Bash al PATH de Jenkins en Windows para poder usar sh, find y otras herramientas
+        PATH = "C:\\Program Files\\Git\\bin;C:\\Program Files\\Git\\usr\\bin;${env.PATH}"
+        
         // Configuracion por defecto para las pruebas de integracion
         DB_HOST = '127.0.0.1'
         DB_USER = 'root'
