@@ -2,6 +2,8 @@
 session_start();
 require_once __DIR__ . '/conexion.php';
 
+/** @var mysqli $conexion */
+
 try {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';

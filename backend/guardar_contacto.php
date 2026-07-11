@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/conexion.php';
 
+/** @var mysqli $conn */
+
 // Recibir datos del formulario
 $nombre = $_POST['contact-name'];
 $telefono = $_POST['contact-phone'];

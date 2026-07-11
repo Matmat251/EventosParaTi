@@ -7,6 +7,8 @@ if (!isset($_SESSION['username'])) {
 }
 require_once __DIR__ . '/conexion.php';
 
+/** @var mysqli $conn */
+
 // Recibir datos del formulario
 $nombre = $_POST['ticket-form-name'];
 $email = $_POST['ticket-form-email'];

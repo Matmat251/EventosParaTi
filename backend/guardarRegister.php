@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/conexion.php';
 
+/** @var mysqli $conexion */
+
 try {
     
 
