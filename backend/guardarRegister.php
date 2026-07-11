@@ -1,18 +1,7 @@
 <?php
-// Activar excepciones para errores   
- mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "eventosparati";
-$port = 3306;
+require_once __DIR__ . '/conexion.php';
 
 try {
-// Conexión a MySQL
-    $conexion = new mysqli($servername, $username, $password, $dbname, $port);
-    $conexion->set_charset("utf8"); // opcional, para acentos
-
     
 
     //if ($conexion->connect_error) {

@@ -71,16 +71,21 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('Docker Deploy') {
             steps {
-                echo 'Validando la construccion de la imagen Docker de la aplicacion...'
+                echo 'Desplegando la aplicacion en contenedores Docker...'
                 bat '''
                     @echo off
                     where docker >nul 2>nul
                     if %errorlevel% equ 0 (
-                        docker build -t "eventosparati/app:jenkins-%BUILD_NUMBER%" .
+                        echo Deteniendo contenedores anteriores...
+                        docker compose down
+                        echo Iniciando nuevos contenedores...
+                        docker compose up -d --build
+                        echo Despliegue completado con exito. Aplicacion corriendo en http://localhost:8000
+                        exit /b 0
                     ) else (
-                        echo   [INFO] Docker no esta instalado en el host. Omitiendo build de imagen.
+                        echo   [INFO] Docker no esta instalado en el host. Omitiendo build y despliegue.
                         exit /b 0
                     )
                 '''

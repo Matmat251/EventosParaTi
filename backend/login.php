@@ -1,17 +1,8 @@
 <?php
 session_start();
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "eventosparati";
-$port = 3306;
+require_once __DIR__ . '/conexion.php';
 
 try {
-    $conexion = new mysqli($servername, $username, $password, $dbname, $port);
-    $conexion->set_charset("utf8");
-    
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
