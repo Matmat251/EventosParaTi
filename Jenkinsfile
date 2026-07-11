@@ -57,20 +57,6 @@ pipeline {
             }
         }
 
-        stage('Pruebas de Integracion') {
-            steps {
-                echo 'Ejecutando suite de pruebas de integracion contra base de datos...'
-                bat '''
-                    @echo off
-                    C:\\php\\php.exe tests\\integration\\integration_tests.php
-                    if %errorlevel% neq 0 (
-                        echo   [WARNING] Algunas pruebas de integracion fallaron, pero continuamos el pipeline.
-                    )
-                    exit /b 0
-                '''
-            }
-        }
-
         stage('Docker Deploy') {
             steps {
                 echo 'Desplegando la aplicacion en contenedores Docker...'
@@ -88,6 +74,31 @@ pipeline {
                         echo   [INFO] Docker no esta instalado en el host. Omitiendo build y despliegue.
                         exit /b 0
                     )
+                '''
+            }
+        }
+
+        stage('Pruebas de Integracion') {
+            steps {
+                echo 'Ejecutando suite de pruebas de integracion contra base de datos...'
+                bat '''
+                    @echo off
+                    where docker >nul 2>nul
+                    if %errorlevel% equ 0 (
+                        echo Esperando a que la base de datos de Docker este lista y respondiendo...
+                        :ping_loop
+                        docker exec eventosparati_db mysqladmin ping -h localhost -u root -proot --silent >nul 2>nul
+                        if %errorlevel% neq 0 (
+                            timeout /t 2 /nobreak >nul
+                            goto ping_loop
+                        )
+                        echo Base de datos en Docker lista!
+                    )
+                    C:\\php\\php.exe tests\\integration\\integration_tests.php
+                    if %errorlevel% neq 0 (
+                        echo   [WARNING] Algunas pruebas de integracion fallaron, pero continuamos el pipeline.
+                    )
+                    exit /b 0
                 '''
             }
         }

@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     unzip \
+    libonig-dev \
     && docker-php-ext-install \
         mysqli \
         pdo \
