@@ -50,8 +50,6 @@ try {
     if (isset($consulta)) {
         $consulta->close();
     }
-    if (isset($conexion)) {
-        $conexion->close();
-    }
+    $conexion->close();
 }
 
