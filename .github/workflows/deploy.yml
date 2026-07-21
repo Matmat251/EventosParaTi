@@ -1,0 +1,35 @@
+name: Continuous Deployment (CD) - AWS & On-Premise
+
+on:
+  push:
+    branches: [ feature/jenkins-ci, main, develop ]
+  workflow_dispatch:
+
+jobs:
+  deploy-aws:
+    name: Despliegue Automatizado en AWS EC2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conectar via SSH y Desplegar en AWS EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "==> Iniciando despliegue automatizado en AWS EC2..."
+            if [ ! -d "$HOME/EventosParaTi" ]; then
+              echo "==> Clonando repositorio por primera vez..."
+              git clone -b feature/jenkins-ci https://github.com/Matmat251/EventosParaTi.git $HOME/EventosParaTi
+              cd $HOME/EventosParaTi
+            else
+              echo "==> Actualizando repositorio existente..."
+              cd $HOME/EventosParaTi
+              git fetch origin feature/jenkins-ci
+              git reset --hard origin/feature/jenkins-ci
+            fi
+            echo "==> Levantando contenedores Docker..."
+            docker compose down || true
+            docker compose up -d --build
+            echo "==> Despliegue finalizado con exito en AWS EC2!"
