@@ -24,6 +24,7 @@ services:
     container_name: eventosparati_app
     restart: unless-stopped
     ports:
+      - "80:80"
       - "8000:80"
     environment:
       DB_HOST: db
